@@ -1,0 +1,28 @@
+{
+    "strip_markdown": {
+        "description": "清洗消息中的 Markdown 格式符号（如 **粗体**、# 标题、* 列表等），让 TIM 显示纯文本",
+        "type": "bool",
+        "default": true
+    },
+    "max_retries": {
+        "description": "DNS/连接错误最大重试次数",
+        "type": "int",
+        "default": 5,
+        "min": 1,
+        "max": 10
+    },
+    "base_delay": {
+        "description": "重试基础延迟（秒），每次重试翻倍",
+        "type": "float",
+        "default": 2.0,
+        "min": 0.5,
+        "max": 10.0
+    },
+    "max_delay": {
+        "description": "重试最大延迟上限（秒）",
+        "type": "float",
+        "default": 30.0,
+        "min": 5.0,
+        "max": 60.0
+    }
+}
