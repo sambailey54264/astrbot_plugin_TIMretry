@@ -1,7 +1,7 @@
 name: astrbot_plugin_TIMretry
 display_name: TIMretry
-desc: 解决QQ官方机器人在TIM中消息不兼容的问题，支持Markdown格式清洗，并为QQ官方适配器提供ClientConnectorDNSError自动重试能力。
-version: v1.0.0
+desc: 解决QQ官方机器人在TIM中消息不兼容的问题，支持Markdown格式清洗，并为QQ官方适配器提供DNS/连接错误自动重试能力。
+version: v1.1.0
 author: sambailey54264
 repo: https://github.com/sambailey54264/astrbot_plugin_TIMretry
 astrbot_version: ">=4.17,<5"
