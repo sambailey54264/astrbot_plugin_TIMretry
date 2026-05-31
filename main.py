@@ -28,10 +28,6 @@ except ImportError:
     ClientConnectorDNSError = None  # type: ignore[assignment]
 
 
-# ──────────────────────────────────────────────
-# Markdown 清洗
-# ──────────────────────────────────────────────
-
 _MD_PATTERNS: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"!\[([^\]]*)\]\([^)]+\)"), r"\1"),
     (re.compile(r"\[([^\]]*)\]\([^)]+\)"), r"\1"),
@@ -59,9 +55,7 @@ def strip_markdown(text: str) -> str:
 
 
 def _extract_plain_text(chain) -> str:
-    """从消息链中提取纯文本内容。"""
     texts: list[str] = []
-    # MessageChain 是 dataclass，组件列表在 .chain 属性里
     components = chain.chain if hasattr(chain, "chain") else chain
     for comp in components:
         if isinstance(comp, Plain):
@@ -74,18 +68,12 @@ def _extract_plain_text(chain) -> str:
 
 
 def _has_rich_media(chain) -> bool:
-    """检查消息链是否包含图片/语音/视频/文件等富媒体组件。"""
     components = chain.chain if hasattr(chain, "chain") else chain
     for comp in components:
         name = type(comp).__name__
         if name in ("Image", "Record", "Video", "File"):
             return True
     return False
-
-
-# ──────────────────────────────────────────────
-# 插件主类
-# ──────────────────────────────────────────────
 
 
 class TIMretryPlugin(star.Star):
@@ -156,16 +144,21 @@ class TIMretryPlugin(star.Star):
                                 msg_id=self_event.message_obj.message_id,
                                 msg_seq=hash(plain_text) % 10000 + 1,
                             )
+                            self_event.send_buffer = chain
+                            self_event._has_send_oper = True
                             return
                         elif isinstance(source, botpy.message.C2CMessage):
+                            from types import SimpleNamespace
                             await QQOfficialMessageEvent.post_c2c_message(
-                                self_event.bot,
+                                SimpleNamespace(bot=self_event.bot),
                                 openid=source.author.user_openid,
                                 content=plain_text,
                                 msg_type=0,
                                 msg_id=self_event.message_obj.message_id,
                                 msg_seq=hash(plain_text) % 10000 + 1,
                             )
+                            self_event.send_buffer = chain
+                            self_event._has_send_oper = True
                             return
                         elif isinstance(source, botpy.message.Message | botpy.message.DirectMessage):
                             await self_event.bot.api.post_message(
@@ -174,6 +167,8 @@ class TIMretryPlugin(star.Star):
                                 msg_type=0,
                                 msg_id=self_event.message_obj.message_id,
                             )
+                            self_event.send_buffer = chain
+                            self_event._has_send_oper = True
                             return
                     except Exception as e:
                         logger.warning(f"[TIMretry] 纯文本直发失败，回退原始流程: {e}")
