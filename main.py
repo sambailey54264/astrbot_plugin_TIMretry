@@ -59,8 +59,11 @@ def strip_markdown(text: str) -> str:
 
 
 def _extract_plain_text(chain) -> str:
+    """从消息链中提取纯文本内容。"""
     texts: list[str] = []
-    for comp in chain:
+    # MessageChain 是 dataclass，组件列表在 .chain 属性里
+    components = chain.chain if hasattr(chain, "chain") else chain
+    for comp in components:
         if isinstance(comp, Plain):
             texts.append(comp.text)
         else:
@@ -71,7 +74,9 @@ def _extract_plain_text(chain) -> str:
 
 
 def _has_rich_media(chain) -> bool:
-    for comp in chain:
+    """检查消息链是否包含图片/语音/视频/文件等富媒体组件。"""
+    components = chain.chain if hasattr(chain, "chain") else chain
+    for comp in components:
         name = type(comp).__name__
         if name in ("Image", "Record", "Video", "File"):
             return True
